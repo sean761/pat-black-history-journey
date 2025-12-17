@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Assigner - Drag & Drop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: calc(100vh - 100px);
+        }
+
+        .panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+
+        .day-section {
+            background: #f9f9f9;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            min-height: 150px;
+        }
+
+        .day-section.drag-over {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .day-header {
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+
+        .image-slot {
+            display: inline-block;
+            margin: 5px;
+            position: relative;
+        }
+
+        .image-slot img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 2px solid #ddd;
+            cursor: move;
+        }
+
+        .image-slot .remove {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .image-library {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .library-image {
+            position: relative;
+        }
+
+        .library-image img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 2px solid #ddd;
+            cursor: move;
+            transition: transform 0.2s;
+        }
+
+        .library-image img:hover {
+            transform: scale(1.05);
+            border-color: #4CAF50;
+        }
+
+        .library-image .filename {
+            font-size: 10px;
+            color: #666;
+            margin-top: 5px;
+            word-break: break-all;
+        }
+
+        .dragging {
+            opacity: 0.5;
+        }
+
+        .upload-area {
+            border: 2px dashed #4CAF50;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            background: #f0f8f0;
+        }
+
+        .upload-area:hover {
+            background: #e8f5e9;
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .actions {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        .empty-slot {
+            display: inline-block;
+            width: 120px;
+            height: 120px;
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            background: #fafafa;
+            text-align: center;
+            line-height: 120px;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Assigner - Drag & Drop Images to Days</h1>
+    
+    <div class="container">
+        <!-- Left: Itinerary Structure -->
+        <div class="panel">
+            <h2>Itinerary (Drop Images Here)</h2>
+            <div id="itinerary"></div>
+        </div>
+
+        <!-- Right: Image Library -->
+        <div class="panel">
+            <h2>Image Library (Drag From Here)</h2>
+            
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <p>📁 Click to Upload New Images</p>
+                <input type="file" id="fileInput" multiple accept="image/*" onchange="handleUpload(event)">
+            </div>
+
+            <div class="image-library" id="library"></div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button onclick="exportMapping()">Export Mapping</button>
+        <button onclick="applyChanges()" style="background: #2196F3;">Apply to index.html</button>
+    </div>
+
+    <script>
+        // Image assignments
+        const assignments = {
+            day1: [],
+            day2: [],
+            day3: [],
+            day4: [],
+            day5: [],
+            day6: [],
+            day7: [],
+            day8: [],
+            gallery: []
+        };
+
+        // Load current assignments from index.html
+        async function loadCurrentAssignments() {
+            try {
+                const response = await fetch('index.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Extract images from each day
+                for (let i = 1; i <= 8; i++) {
+                    const daySection = doc.querySelector(`.day-section:nth-of-type(${i})`);
+                    if (daySection) {
+                        const images = daySection.querySelectorAll('.day-image img');
+                        assignments[`day${i}`] = Array.from(images).map(img => {
+                            const src = img.getAttribute('src');
+                            return src.replace('/images/', '');
+                        });
+                    }
+                }
+                
+                // Extract gallery images
+                const galleryImages = doc.querySelectorAll('.gallery-item img');
+                assignments.gallery = Array.from(galleryImages).map(img => {
+                    const src = img.getAttribute('src');
+                    return src.replace('/images/', '');
+                });
+            } catch (e) {
+                console.log('Could not load current assignments, starting fresh');
+            }
+            renderItinerary();
+        }
+
+        // All images from images/ folder
+        const knownImages = [
+            "chesapeake-virginia-logo.jpg", "chesapeake-virginia-logo.png",
+            "day1-norfolk-airport-chesapeake.jpg", "day2-emancipation-oak-hampton-university.jpg",
+            "day3-norfolk-harborfest-tall-ships.jpg", "day4-colonial-williamsburg-duke-of-gloucester.jpg",
+            "day5-jamestown-settlement.jpg", "day6-national-museum-american-history.jpg",
+            "day7-national-museum-african-american-history-culture.jpg", "day8-washington-dc-monuments.jpg",
+            "emancipation-oak.jpg", "emancipation-oak.png",
+            "extracted_image_10_0.jpg", "extracted_image_10_1.jpg", "extracted_image_10_2.jpg",
+            "extracted_image_10_3.jpg", "extracted_image_10_4.jpg", "extracted_image_10_5.jpg",
+            "extracted_image_10_6.jpg", "extracted_image_10_7.jpg", "extracted_image_10_8.jpg",
+            "extracted_image_10_9.jpg", "extracted_image_11_0.jpg", "extracted_image_11_1.jpg",
+            "extracted_image_11_2.jpg", "extracted_image_11_3.jpg", "extracted_image_11_4.jpg",
+            "extracted_image_11_5.jpg", "extracted_image_11_6.jpg", "extracted_image_11_7.jpg",
+            "extracted_image_1_0.jpg", "extracted_image_1_1.jpg", "extracted_image_5_0.jpg",
+            "extracted_image_6_0.jpg", "extracted_image_6_1.jpg", "extracted_image_7_0.jpg",
+            "extracted_image_7_1.jpg", "extracted_image_7_2.jpg", "extracted_image_7_3.jpg",
+            "extracted_image_8_0.jpg", "extracted_image_8_1.jpg", "extracted_image_8_2.jpg",
+            "extracted_image_8_3.jpg", "extracted_image_8_4.jpg", "extracted_image_8_5.jpg",
+            "extracted_image_8_6.jpg", "extracted_image_8_7.jpg", "extracted_image_8_8.jpg",
+            "extracted_image_9_0.jpg", "extracted_image_9_1.jpg", "extracted_image_9_2.jpg",
+            "extracted_image_9_3.jpg", "extracted_image_9_4.jpg", "extracted_image_9_5.jpg",
+            "extracted_image_p10_i1.png", "extracted_image_p10_i10.jpeg", "extracted_image_p10_i2.png",
+            "extracted_image_p10_i3.png", "extracted_image_p10_i4.png", "extracted_image_p10_i5.png",
+            "extracted_image_p10_i6.jpeg", "extracted_image_p10_i7.jpeg", "extracted_image_p10_i8.jpeg",
+            "extracted_image_p10_i9.jpeg", "extracted_image_p11_i1.jpeg", "extracted_image_p11_i2.jpeg",
+            "extracted_image_p11_i3.jpeg", "extracted_image_p11_i4.jpeg", "extracted_image_p11_i5.jpeg",
+            "extracted_image_p11_i6.jpeg", "extracted_image_p11_i7.jpeg", "extracted_image_p11_i8.jpeg",
+            "extracted_image_p1_i1.png", "extracted_image_p1_i2.jpeg", "extracted_image_p5_i1.jpeg",
+            "extracted_image_p6_i1.jpeg", "extracted_image_p6_i2.jpeg", "extracted_image_p7_i1.jpeg",
+            "extracted_image_p7_i2.jpeg", "extracted_image_p7_i3.jpeg", "extracted_image_p7_i4.jpeg",
+            "extracted_image_p8_i1.jpeg", "extracted_image_p8_i2.jpeg", "extracted_image_p8_i3.jpeg",
+            "extracted_image_p8_i4.jpeg", "extracted_image_p8_i5.jpeg", "extracted_image_p8_i6.jpeg",
+            "extracted_image_p8_i7.jpeg", "extracted_image_p8_i8.jpeg", "extracted_image_p8_i9.jpeg",
+            "extracted_image_p9_i1.jpeg", "extracted_image_p9_i2.jpeg", "extracted_image_p9_i3.jpeg",
+            "extracted_image_p9_i4.png", "extracted_image_p9_i5.jpeg", "extracted_image_p9_i6.png",
+            "gallery-arlington-national-cemetery.jpg", "gallery-colonial-williamsburg.jpg",
+            "gallery-cornland-school-museum.jpg", "gallery-emancipation-oak-hampton-university.jpg",
+            "gallery-jamestown-settlement.jpg", "gallery-lincoln-memorial.jpg",
+            "gallery-mlk-memorial.jpg", "gallery-monuments-by-moonlight.jpg",
+            "gallery-national-museum-african-american-history-culture.jpg", "gallery-norfolk-harborfest-tall-ships.jpg",
+            "hero-anchored-in-legacy.jpg", "jamestown-settlement-1.jpg", "jamestown-settlement-1.png",
+            "jamestown-settlement-2.jpg", "jamestown-settlement-2.png", "jamestown-settlement-3.jpg",
+            "jamestown-settlement-3.png", "williamsburg-gateway.jpg", "williamsburg-gateway.png",
+            "williamsburg-governors-palace.jpg", "williamsburg-governors-palace.png",
+            "williamsburg-merchant-shop.jpg", "williamsburg-merchant-shop.png"
+        ];
+
+        function renderItinerary() {
+            const container = document.getElementById('itinerary');
+            container.innerHTML = '';
+
+            const dayTitles = {
+                day1: 'Day 1: Arrival Day - Chesapeake, Virginia',
+                day2: 'Day 2: Juneteenth Celebration Day',
+                day3: 'Day 3: Norfolk Harborfest & Travel to Williamsburg',
+                day4: 'Day 4: Williamsburg - American Revolution',
+                day5: 'Day 5: Jamestown & Travel to Washington, D.C.',
+                day6: 'Day 6: Washington, D.C. - American History',
+                day7: 'Day 7: Washington, D.C. - Memorials & African American History',
+                day8: 'Day 8: Departure Day'
+            };
+
+            // Render days
+            for (let i = 1; i <= 8; i++) {
+                const dayKey = `day${i}`;
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'day-section';
+                dayDiv.dataset.day = dayKey;
+                dayDiv.innerHTML = `<div class="day-header">${dayTitles[dayKey]}</div>`;
+                
+                const slotDiv = document.createElement('div');
+                slotDiv.className = 'image-slots';
+                
+                if (assignments[dayKey].length === 0) {
+                    slotDiv.innerHTML = '<div class="empty-slot">Drop image here</div>';
+                } else {
+                    assignments[dayKey].forEach((img, idx) => {
+                        slotDiv.appendChild(createImageSlot(img, dayKey, idx));
+                    });
+                }
+                
+                dayDiv.appendChild(slotDiv);
+                setupDropZone(dayDiv, dayKey);
+                container.appendChild(dayDiv);
+            }
+
+            // Gallery section
+            const galleryDiv = document.createElement('div');
+            galleryDiv.className = 'day-section';
+            galleryDiv.dataset.day = 'gallery';
+            galleryDiv.innerHTML = '<div class="day-header">Gallery Section</div>';
+            
+            const gallerySlotDiv = document.createElement('div');
+            gallerySlotDiv.className = 'image-slots';
+            
+            if (assignments.gallery.length === 0) {
+                gallerySlotDiv.innerHTML = '<div class="empty-slot">Drop images here</div>';
+            } else {
+                assignments.gallery.forEach((img, idx) => {
+                    gallerySlotDiv.appendChild(createImageSlot(img, 'gallery', idx));
+                });
+            }
+            
+            galleryDiv.appendChild(gallerySlotDiv);
+            setupDropZone(galleryDiv, 'gallery');
+            container.appendChild(galleryDiv);
+        }
+
+        function createImageSlot(filename, dayKey, index) {
+            const div = document.createElement('div');
+            div.className = 'image-slot';
+            div.draggable = true;
+            div.dataset.filename = filename;
+            div.dataset.day = dayKey;
+            div.dataset.index = index;
+            
+            const img = document.createElement('img');
+            img.src = `images/${filename}`;
+            img.alt = filename;
+            img.onerror = () => { img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="#ddd"/><text x="60" y="60" text-anchor="middle" fill="#999">Image not found</text></svg>'; };
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove';
+            removeBtn.innerHTML = '×';
+            removeBtn.onclick = (e) => {
+                e.stopPropagation();
+                assignments[dayKey].splice(index, 1);
+                renderItinerary();
+                renderLibrary();
+            };
+            
+            div.appendChild(img);
+            div.appendChild(removeBtn);
+            
+            div.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', JSON.stringify({filename, dayKey, index}));
+                div.classList.add('dragging');
+            });
+            
+            div.addEventListener('dragend', () => {
+                div.classList.remove('dragging');
+            });
+            
+            return div;
+        }
+
+        function setupDropZone(element, dayKey) {
+            element.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                element.classList.add('drag-over');
+            });
+            
+            element.addEventListener('dragleave', () => {
+                element.classList.remove('drag-over');
+            });
+            
+            element.addEventListener('drop', (e) => {
+                e.preventDefault();
+                element.classList.remove('drag-over');
+                
+                const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                
+                if (data.filename) {
+                    // Remove from old location
+                    if (data.dayKey && data.index !== undefined) {
+                        assignments[data.dayKey].splice(data.index, 1);
+                    }
+                    
+                    // Add to new location
+                    if (!assignments[dayKey].includes(data.filename)) {
+                        assignments[dayKey].push(data.filename);
+                    }
+                    
+                    renderItinerary();
+                    renderLibrary();
+                }
+            });
+        }
+
+        function renderLibrary() {
+            const container = document.getElementById('library');
+            container.innerHTML = '';
+            
+            // Get all assigned images
+            const assigned = new Set();
+            Object.values(assignments).flat().forEach(img => assigned.add(img));
+            
+            // Show all known images
+            knownImages.forEach(filename => {
+                const div = document.createElement('div');
+                div.className = 'library-image';
+                
+                const img = document.createElement('img');
+                img.src = `images/${filename}`;
+                img.alt = filename;
+                img.draggable = true;
+                img.onerror = () => { img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="#ddd"/><text x="60" y="60" text-anchor="middle" fill="#999">Not found</text></svg>'; };
+                
+                img.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', JSON.stringify({filename}));
+                    img.classList.add('dragging');
+                });
+                
+                img.addEventListener('dragend', () => {
+                    img.classList.remove('dragging');
+                });
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'filename';
+                nameDiv.textContent = filename;
+                
+                div.appendChild(img);
+                div.appendChild(nameDiv);
+                container.appendChild(div);
+            });
+        }
+
+        function handleUpload(event) {
+            const files = Array.from(event.target.files);
+            files.forEach(file => {
+                // In a real implementation, you'd upload to server
+                // For now, just add to known images
+                if (!knownImages.includes(file.name)) {
+                    knownImages.push(file.name);
+                }
+            });
+            renderLibrary();
+            alert('Images added! (Note: In production, these would be uploaded to the server)');
+        }
+
+        function exportMapping() {
+            const json = JSON.stringify(assignments, null, 2);
+            const blob = new Blob([json], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'image-assignments.json';
+            a.click();
+        }
+
+        function applyChanges() {
+            const mapping = JSON.stringify(assignments, null, 2);
+            
+            // Create a textarea with the mapping for easy copying
+            const textarea = document.createElement('textarea');
+            textarea.value = mapping;
+            textarea.style.position = 'fixed';
+            textarea.style.top = '50%';
+            textarea.style.left = '50%';
+            textarea.style.transform = 'translate(-50%, -50%)';
+            textarea.style.width = '600px';
+            textarea.style.height = '400px';
+            textarea.style.zIndex = '10000';
+            textarea.style.padding = '20px';
+            textarea.style.fontSize = '12px';
+            textarea.style.border = '2px solid #4CAF50';
+            textarea.style.borderRadius = '8px';
+            textarea.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
+            
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.background = 'rgba(0,0,0,0.5)';
+            overlay.style.zIndex = '9999';
+            overlay.onclick = () => {
+                document.body.removeChild(overlay);
+                document.body.removeChild(textarea);
+            };
+            
+            const instructions = document.createElement('div');
+            instructions.style.position = 'fixed';
+            instructions.style.top = '20%';
+            instructions.style.left = '50%';
+            instructions.style.transform = 'translateX(-50%)';
+            instructions.style.background = 'white';
+            instructions.style.padding = '20px';
+            instructions.style.borderRadius = '8px';
+            instructions.style.zIndex = '10001';
+            instructions.style.maxWidth = '600px';
+            instructions.style.textAlign = 'center';
+            instructions.innerHTML = `
+                <h3>Copy the mapping below and tell me to apply it:</h3>
+                <p style="color: #666; margin: 10px 0;">Press Ctrl+C (or Cmd+C on Mac) to copy, then close this window</p>
+                <button onclick="document.body.removeChild(this.parentElement); document.body.removeChild(document.querySelector('textarea')); document.body.removeChild(document.querySelector('div[style*=\"rgba(0,0,0,0.5)\"]'));" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Close</button>
+            `;
+            
+            document.body.appendChild(overlay);
+            document.body.appendChild(textarea);
+            document.body.appendChild(instructions);
+            
+            textarea.select();
+            textarea.focus();
+            
+            console.log('Image Assignments:', assignments);
+        }
+
+        // Initialize
+        loadCurrentAssignments();
+        renderLibrary();
+    </script>
+</body>
+</html>
