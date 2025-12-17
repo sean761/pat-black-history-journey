@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anchored in Legacy - A Journey Through America's 250th & Juneteenth</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --navy: #0d1b2a;
+            --navy-deep: #1a2332;
+            --gold: #d4af37;
+            --gold-warm: #c9a961;
+            --burgundy: #8b2635;
+            --charcoal: #2d3436;
+            --cream: #faf9f6;
+            --white: #ffffff;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            color: var(--charcoal);
+            background-color: var(--cream);
+            line-height: 1.7;
+            font-size: 18px;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 100vh;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            /* REPLACE WITH ACTUAL HERO IMAGE: A powerful image related to "Anchored in Legacy" - 
+               Suggested: Emancipation Oak, monument, or historical site that represents the journey */
+            background: linear-gradient(135deg, rgba(13, 27, 42, 0.85) 0%, rgba(26, 35, 50, 0.75) 100%),
+                        url('images/hero-anchored-in-legacy.jpg') center/cover no-repeat;
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: var(--white);
+            padding: 2rem;
+            max-width: 900px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero .subtitle {
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+            color: var(--gold);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero .dates {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            margin-top: 2rem;
+            opacity: 0.95;
+            letter-spacing: 0.1em;
+        }
+
+        .hero .prepared-by {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            opacity: 0.9;
+            letter-spacing: 0.05em;
+        }
+
+        .hero .prepared-by strong {
+            color: var(--gold);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            color: var(--white);
+            text-align: center;
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-indicator span {
+            display: block;
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+
+        /* Introduction Section */
+        .intro {
+            padding: 6rem 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .intro h2 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: var(--navy);
+            margin-bottom: 2rem;
+        }
+
+        .intro p {
+            font-size: 1.2rem;
+            line-height: 1.9;
+            color: var(--charcoal);
+            margin-bottom: 1.5rem;
+        }
+
+        .intro .highlight {
+            color: var(--burgundy);
+            font-weight: 700;
+        }
+
+        /* Day Sections */
+        .itinerary {
+            background-color: var(--white);
+        }
+
+        .day-section {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .day-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .day-section:nth-child(even) {
+            background-color: var(--cream);
+        }
+
+        .day-header {
+            display: flex;
+            align-items: baseline;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .day-number {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            color: var(--gold);
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .day-info {
+            flex: 1;
+        }
+
+        .day-date {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+        }
+
+        .day-location {
+            font-size: 1.3rem;
+            color: var(--burgundy);
+            font-weight: 400;
+        }
+
+        .day-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .day-image {
+            position: relative;
+            width: 100%;
+            padding-bottom: 75%;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .day-image img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .day-image:hover img {
+            transform: scale(1.05);
+        }
+
+        .day-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .day-text h3 {
+            font-size: 1.8rem;
+            color: var(--navy);
+            margin-bottom: 1rem;
+        }
+
+        .day-text p {
+            margin-bottom: 1.5rem;
+            color: var(--charcoal);
+        }
+
+        .activities-list {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .activities-list li {
+            padding: 0.8rem 0;
+            padding-left: 2rem;
+            position: relative;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .activities-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        /* Key Sites Gallery */
+        .gallery {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+            color: var(--white);
+        }
+
+        .gallery h2 {
+            text-align: center;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            margin-bottom: 4rem;
+            color: var(--gold);
+        }
+
+        .gallery-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            aspect-ratio: 4/3;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .gallery-item:hover::after {
+            opacity: 1;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .gallery-item-title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            z-index: 2;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: var(--white);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .gallery-item:hover .gallery-item-title {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* What's Included Section */
+        .included {
+            padding: 6rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .included h2 {
+            text-align: center;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            color: var(--navy);
+            margin-bottom: 4rem;
+        }
+
+        .included-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .included-item {
+            display: flex;
+            align-items: start;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background-color: var(--cream);
+            border-radius: 8px;
+            border-left: 4px solid var(--gold);
+        }
+
+        .included-item-icon {
+            font-size: 2rem;
+            color: var(--gold);
+            flex-shrink: 0;
+        }
+
+        .included-item-text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        /* Contact/CTA Section */
+        .contact {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 100%);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .contact-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .contact h2 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            margin-bottom: 2rem;
+            color: var(--gold);
+        }
+
+        .contact p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .contact-info {
+            margin: 3rem 0;
+            font-size: 1.1rem;
+        }
+
+        .contact-info a {
+            color: var(--gold);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .contact-info a:hover {
+            color: var(--gold-warm);
+        }
+
+        .brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--gold);
+            margin-top: 3rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 2rem;
+            background-color: var(--charcoal);
+            color: var(--white);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .day-content {
+                grid-template-columns: 1fr;
+            }
+
+            .day-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .included-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                min-height: 500px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .hero {
+                height: auto;
+                min-height: auto;
+                page-break-after: always;
+            }
+
+            .scroll-indicator {
+                display: none;
+            }
+
+            .day-section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>ANCHORED IN LEGACY</h1>
+            <p class="subtitle">A Journey Through America's 250th & Juneteenth</p>
+            <p class="dates">June 18-25, 2026 • 7 Nights</p>
+            <p class="prepared-by">Prepared by <strong>Great Falls Travel</strong><br>Planned in conjunction with <strong>Pat Mackey</strong></p>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll to Explore</span>
+            <div>↓</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section class="intro">
+        <h2>A Once-in-250-Years Convergence</h2>
+        <p>
+            On <span class="highlight">June 19, 2026</span>, witness history as Juneteenth converges with America's 250th birthday celebration. Your group will stand beneath the <strong>Emancipation Oak</strong>—the very tree where freedom was first proclaimed to enslaved people in the South—as 60+ magnificent tall ships from around the world sail into Hampton Roads harbor.
+        </p>
+        <p>
+            This transformative journey traces the complete American story through Washington's monuments, Colonial Williamsburg's living history, and the sacred grounds where our nation began. From the <strong>National Museum of African American History</strong> to <strong>Jamestown's shores</strong> where the first Africans arrived in 1619, your travelers will experience the full arc of America's complex heritage during our nation's most significant celebration.
+        </p>
+    </section>
+
+    <!-- Day-by-Day Itinerary -->
+    <section class="itinerary">
+        <!-- Day 1: Thursday, June 18 -->
+        <div class="day-section">
+            <div class="day-header">
+                <div class="day-number">1</div>
+                <div class="day-info">
+                    <div class="day-date">Thursday, June 18, 2026</div>
+                    <div class="day-location">Arrival Day - Chesapeake, Virginia</div>
+                </div>
+            </div>
+            <div class="day-content">
+                <div class="day-image">
+                    <!-- REPLACE WITH ACTUAL PHOTO: Norfolk International Airport and Chesapeake, Virginia -->
+                    <img src="images/day1-norfolk-airport-chesapeake.jpg" alt="Norfolk International Airport and Chesapeake, Virginia" loading="lazy">
+                </div>
+                <div class="day-text">
+                    <p>Your journey begins as you arrive at <strong>Norfolk International Airport</strong> and transfer to your hotel in <strong>Chesapeake, Virginia</strong>. Settle into your accommodations and prepare for the transformative experience ahead. This evening offers an opportunity to rest and connect with fellow travelers before the historic celebrations begin.</p>
+                    <ul class="activities-list">
+                        <li>Arrive at Norfolk International Airport</li>
+                        <li>Transfer to hotel in Chesapeake, Virginia</li>
+                        <li>Check-in at hotel</li>
+                        <li>Optional evening activity</li>
+                        <li>Overnight in Chesapeake</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 2: Friday, June 19 - Juneteenth -->
+        <div class="day-section">
+            <div class="day-header">
+                <div class="day-number">2</div>
+                <div class="day-info">
+                    <div class="day-date">Friday, June 19, 2026</div>
+                    <div class="day-location">Juneteenth Celebration Day - Hampton & Chesapeake</div>
+                </div>
+            </div>
+            <div class="day-content">
+                <div class="day-image">
+                    <!-- REPLACE WITH ACTUAL PHOTO: Emancipation Oak at Hampton University -->
+                    <img src="images/day2-emancipation-oak-hampton-university.jpg" alt="Emancipation Oak at Hampton University" loading="lazy">
+                </div>
+                <div class="day-text">
+                    <h3>Hampton University & The Emancipation Oak</h3>
+                    <p>Stand beneath the historic <strong>Emancipation Oak</strong> at <strong>Hampton University</strong>, where in 1863 members of the Virginia Peninsula's Black community gathered to hear the first Southern reading of the Emancipation Proclamation. This magnificent live oak, with branches spanning 100 feet, has witnessed the journey from slavery to freedom, from Contraband camps to a premier HBCU. On Juneteenth 2026, this sacred ground becomes the epicenter where America's 250th anniversary meets freedom's celebration in a once-in-history convergence.</p>
+                    <h3>Cornland School Museum</h3>
+                    <p>Explore the <strong>Cornland School Museum</strong>, a restored one-room schoolhouse where teachers educated Black children from Reconstruction through Jim Crow. Original desks and textbooks reveal how determined teachers with limited resources lit the flame of learning despite oppression. This humble building stands as a testament to the belief that education was liberation and that knowledge could overcome even the harshest barriers to equality.</p>
+                    <h3>Fort Monroe - "Freedom's Fortress"</h3>
+                    <p>Visit <strong>Fort Monroe</strong>, the site where the first documented Africans arrived in English North America in 1619. This historic fortress became known as "Freedom's Fortress" during the Civil War when it served as a Union stronghold and refuge for thousands of enslaved people seeking freedom. Stand where history began and where the promise of liberty took root in American soil, connecting the arrival of the first Africans with the ongoing struggle for freedom and equality.</p>
+                    <ul class="activities-list">
+                        <li>Morning: Motor coach meets group at Chesapeake hotel</li>
+                        <li>10:00 AM - 11:30 AM: Visit Historical Village and Cornland School Museum</li>
+                        <li>Afternoon: Travel to Hampton for Juneteenth activities</li>
+                        <li>Visit Hampton University and Emancipation Oak</li>
+                        <li>Visit Fort Monroe ("Freedom's Fortress")</li>
+                        <li>Evening: Attend Juneteenth play in Hampton</li>
+                        <li>Return to Chesapeake for overnight</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 3: Saturday, June 20 -->
+        <div class="day-section">
+            <div class="day-header">
+                <div class="day-number">3</div>
+                <div class="day-info">
+                    <div class="day-date">Saturday, June 20, 2026</div>
+                    <div class="day-location">Norfolk Harborfest & Travel to Williamsburg</div>
+                </div>
+            </div>
+            <div class="day-content">
+                <div class="day-image">
+                    <!-- REPLACE WITH ACTUAL PHOTO: Norfolk Harborfest with Tall Ships -->
+                    <img src="images/day3-norfolk-harborfest-tall-ships.jpg" alt="Norfolk Harborfest with Tall Ships" loading="lazy">
+                </div>
+                <div class="day-text">
+                    <h3>Norfolk Harborfest</h3>
+                    <p>Immerse yourself in <strong>Norfolk Harborfest</strong>, where Juneteenth celebrations merge with America's 250th birthday in an explosion of music, culture, and maritime heritage. Experience special programming that weaves African American culture into the tall ships celebration, with jazz, gospel, and blues floating across the harbor. Evening fireworks illuminate the fleet, creating an unforgettable fusion of freedom and celebration unlike anything in American history.</p>
+                    <h3>Colonial Williamsburg & The Bray School</h3>
+                    <p>Step into <strong>Colonial Williamsburg</strong>, where 18th-century America comes alive through costumed interpreters and restored buildings. Walk <strong>Duke of Gloucester Street</strong> and discover the <strong>Bray School</strong>, one of America's earliest schools for Black children, and the <strong>African Baptist Meeting House</strong>. This living museum reveals how liberty was debated while an entire population remained enslaved, presenting the complex stories of revolutionaries, loyalists, and the enslaved who built colonial America.</p>
+                    <ul class="activities-list">
+                        <li>Morning: Visit Great Bridge Battlefield & Waterways Museum</li>
+                        <li>Afternoon/Evening: Travel to Norfolk for Norfolk Harborfest (Sail250 events)</li>
+                        <li>After Harborfest, travel to Williamsburg</li>
+                        <li>Check-in at Williamsburg Hotel (2 nights)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 4: Sunday, June 21 -->
+        <div class="day-section">
+            <div class="day-header">
+                <div class="day-number">4</div>
+                <div class="day-info">
+                    <div class="day-date">Sunday, June 21, 2026</div>
+                    <div class="day-location">Williamsburg - American Revolution & Colonial History</div>
+                </div>
+            </div>
+            <div class="day-content">
+                <div class="day-image">
+                    <!-- REPLACE WITH ACTUAL PHOTO: Colonial Williamsburg - Duke of Gloucester Street -->
+                    <img src="images/day4-colonial-williamsburg-duke-of-gloucester.jpg" alt="Colonial Williamsburg - Duke of Gloucester Street" loading="lazy">
+                </div>
+                <div class="day-text">
+                    <h3>American Revolution Museum at Yorktown</h3>
+                    <p>Experience the complete Revolution story at the <strong>American Revolution Museum at Yorktown</strong> through immersive galleries and living history. Discover how Patriots, Loyalists, women, Native Americans, and enslaved and free Blacks experienced the war for independence differently. The museum boldly addresses how a war for liberty coexisted with slavery, revealing that the Revolution was not an ending but a beginning of the struggle to fulfill the promise that all are created equal.</p>
+                    <h3>The Williamsburg Bray School</h3>
+                    <p>Discover the <strong>Williamsburg Bray School</strong>, the oldest surviving schoolhouse for Black children in the United States, established in 1760. This remarkable building represents one of the earliest organized efforts to provide education to African American children in colonial America. Founded by the Associates of Dr. Bray, an English philanthropic organization, the school taught reading, writing, and Christian instruction to free and enslaved Black children. The Bray School stands as a powerful symbol of the determination to seek knowledge and education despite the constraints of slavery, demonstrating that even in the darkest times, the pursuit of learning was seen as a path to dignity and freedom.</p>
+                    <h3>First Baptist Church / African Baptist Meeting House</h3>
+                    <p>Visit the <strong>First Baptist Church / African Baptist Meeting House</strong>, founded in the 1770s by free and enslaved African Americans. This historic church represents one of the earliest organized Black congregations in America, where African Americans created their own spiritual community and space for worship, fellowship, and resistance. The church became a center of Black life, culture, and organizing, demonstrating the resilience and agency of African Americans even under the brutal system of slavery.</p>
+                    <h3>Freedom Park</h3>
+                    <p>Explore <strong>Freedom Park</strong>, the site of America's first free Black settlement. This sacred ground tells the story of free African Americans who established their own community, creating a space of autonomy and self-determination in colonial Virginia. The park preserves this important history and honors the legacy of those who built lives of freedom and dignity against tremendous odds.</p>
+                    <ul class="activities-list">
+                        <li>Visit American Revolution Museum at Yorktown</li>
+                        <li>Explore Colonial Williamsburg's historic sites</li>
+                        <li>Visit Williamsburg Bray School</li>
+                        <li>Visit First Baptist Church / African Baptist Meeting House</li>
+                        <li>Explore Freedom Park</li>
+                        <li>Overnight in Williamsburg</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 5: Monday, June 22 -->
+        <div class="day-section">
+            <div class="day-header">
+                <div class="day-number">5</div>
+                <div class="day-info">
+                    <div class="day-date">Monday, June 22, 2026</div>
+                    <div class="day-location">Jamestown & Travel to Washington, D.C.</div>
+                </div>
+            </div>
+            <div class="day-content">
+                <div class="day-image">
+                    <!-- REPLACE WITH ACTUAL PHOTO: Jamestown Settlement -->
+                    <img src="images/day5-jamestown-settlement.jpg" alt="Jamestown Settlement" loading="lazy">
+                </div>
+                <div class="day-text">
+                    <h3>Visit Jamestown</h3>
+                    <p>Discover <strong>Jamestown Settlement</strong>, where three worlds collided in 1607 and the first documented Africans arrived in English America in 1619. Board replica ships, explore a Powhatan village, and understand how European, African, and Native American cultures shaped our nation's beginning. The exhibits honestly address the introduction of slavery and tobacco cultivation that would define colonial economy, revealing that American history requires acknowledging all who were present at its birth.</p>
+                    <p>Stand on the very ground where the first documented Africans—"20 and odd Negroes" as recorded by John Rolfe—arrived in 1619, marking the beginning of African presence in English North America. This momentous arrival, occurring just 12 years after the founding of Jamestown, would fundamentally shape the course of American history. The museum's powerful exhibits explore the complex relationships between European settlers, African arrivals, and Native peoples, presenting an honest narrative that acknowledges the painful legacy of slavery while honoring the resilience, contributions, and humanity of those who were forcibly brought to these shores. Through immersive reenactments, authentic artifacts, and thoughtful interpretation, visitors gain a deeper understanding of how these three cultures intersected, conflicted, and ultimately created the foundation of what would become the United States.</p>
+                    <h3>Martin Luther King, Jr. Memorial</h3>
+                    <p>Experience the <strong>Martin Luther King Jr. Memorial</strong>, where the "Stone of Hope" emerges from the "Mountain of Despair," capturing Dr. King's belief that faith moves mountains. Read 14 powerful quotes etched in granite, from his Letter from Birmingham Jail to his final sermon.</p>
+                    <h3>Lincoln Memorial</h3>
+                    <p>Stand at the <strong>Lincoln Memorial</strong>, America's temple to democracy and site of pivotal civil rights moments. Gaze up at the 19-foot marble statue of the president who issued the Emancipation Proclamation, with his immortal words etched in stone.</p>
+                    <h3>Monuments by Moonlight Tour</h3>
+                    <p>As dusk falls over Washington, DC, the city transforms into a luminous stage where history and grandeur come alive under the moonlight. This unforgettable evening adventure showcases the city's famed monuments and memorials in a whole new light.</p>
+                    <ul class="activities-list">
+                        <li>Check out of Williamsburg hotel</li>
+                        <li>Visit Jamestown Settlement</li>
+                        <li>Transfer to Washington, D.C. with lunch stop</li>
+                        <li>Visit Martin Luther King, Jr. Memorial</li>
+                        <li>Visit Lincoln Memorial</li>
+                        <li>Monuments by Moonlight Tour</li>
+                        <li>Check-in at Washington D.C. Area Hotel (2 nights)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 6: Tuesday, June 23 -->
+        <div class="day-section">
+            <div class="day-header">
+                <div class="day-number">6</div>
+                <div class="day-info">
+                    <div class="day-date">Tuesday, June 23, 2026</div>
+                    <div class="day-location">Washington, D.C. - American History & Culture</div>
+                </div>
+            </div>
+            <div class="day-content">
+                <div class="day-image">
+                    <!-- REPLACE WITH ACTUAL PHOTO: National Museum of American History -->
+                    <img src="images/day6-national-museum-american-history.jpg" alt="National Museum of American History" loading="lazy">
+                </div>
+                <div class="day-text">
+                    <h3>National Museum of American History</h3>
+                    <p>Discover the rich tapestry of American history at the <strong>National Museum of American History</strong>. This museum houses a vast collection of artifacts that tell the story of America, from the original Star-Spangled Banner and Abraham Lincoln's top hat to innovations in science and technology. Interactive exhibits on American culture, politics, and social movements provide a comprehensive view of the nation's history.</p>
+                    <p>Explore powerful exhibits that tell the complete American story, including the Greensboro lunch counter where four Black college students staged a sit-in that sparked a movement, the Woolworth's counter that became a symbol of nonviolent resistance during the Civil Rights Movement. See artifacts from the struggle for voting rights, including items from the Selma to Montgomery marches, and discover how African Americans have shaped every aspect of American life—from music and culture to science, politics, and social justice. The museum's "American Stories" exhibition traces the diverse experiences of Americans across centuries, while "The American Presidency" explores how the highest office has both reflected and shaped the nation's ongoing journey toward equality.</p>
+                    <h3>Museum of the Bible</h3>
+                    <p>Discover the remarkable <strong>Museum of the Bible</strong>, where ancient manuscripts and cutting-edge technology bring sacred texts to life. Marvel at Dead Sea Scroll fragments and first-edition King James Bibles while exploring scripture's influence on civil rights leaders and American democracy.</p>
+                    <p>Experience how the Bible has served as both inspiration and foundation for the African American struggle for freedom and equality. Explore exhibits highlighting how enslaved Africans found hope and strength in biblical narratives of liberation, and how civil rights leaders like Dr. Martin Luther King Jr., Fannie Lou Hamer, and countless others drew upon scriptural teachings to fuel the movement for justice. See rare Bibles owned by prominent African American leaders and discover how faith communities have been central to organizing, resistance, and the pursuit of civil rights throughout American history. The museum's immersive exhibits connect ancient texts to contemporary struggles, revealing how scripture has been interpreted, reinterpreted, and lived out in the ongoing quest for freedom and dignity.</p>
+                    <ul class="activities-list">
+                        <li>Visit National Museum of American History</li>
+                        <li>Visit Museum of the Bible</li>
+                        <li>Overnight in Washington, D.C.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 7: Wednesday, June 24 -->
+        <div class="day-section">
+            <div class="day-header">
+                <div class="day-number">7</div>
+                <div class="day-info">
+                    <div class="day-date">Wednesday, June 24, 2026</div>
+                    <div class="day-location">Washington, D.C. - Memorials & African American History</div>
+                </div>
+            </div>
+            <div class="day-content">
+                <div class="day-image">
+                    <!-- REPLACE WITH ACTUAL PHOTO: National Museum of African American History and Culture -->
+                    <img src="images/day7-national-museum-african-american-history-culture.jpg" alt="National Museum of African American History and Culture" loading="lazy">
+                </div>
+                <div class="day-text">
+                    <h3>Arlington National Cemetery - Guided Tram Tour</h3>
+                    <p>Pay respects at <strong>Arlington National Cemetery</strong> on a <strong>guided tram tour</strong>, where 400,000 American heroes rest in eternal honor. This comprehensive tour takes you through the hallowed grounds, allowing you to witness the Changing of the Guard at the <strong>Tomb of the Unknown Soldier</strong> and visit <strong>President Kennedy's eternal flame</strong>. The endless rows of white headstones tell stories of sacrifice from every American conflict, creating a profound reminder of freedom's price and the valor of those who paid it. Your guided tram tour provides expert commentary on the cemetery's history, notable gravesites, and the stories of service and sacrifice that define this sacred place, including the contributions of African American service members throughout American history.</p>
+                    <h3>National Museum of African American History and Culture</h3>
+                    <p>Embark on an enlightening journey through the <strong>National Museum of African American History and Culture</strong>, where 400 years of African American experience unfold with dignity and depth. Encounter powerful artifacts from the pain of slavery to triumphs in arts, sports, and politics, including exhibits on the Civil Rights Movement and Obama Presidency. This transformative experience connects visitors with stories of resilience and celebration that reveal how African Americans have fundamentally shaped our nation.</p>
+                    <ul class="activities-list">
+                        <li>Guided tram tour of Arlington National Cemetery</li>
+                        <li>Witness Changing of the Guard at Tomb of the Unknown Soldier</li>
+                        <li>Visit President Kennedy's eternal flame</li>
+                        <li>Full day exploration of National Museum of African American History and Culture</li>
+                        <li>Museum hours: 10:00 AM - 5:30 PM</li>
+                        <li>Overnight in Washington, D.C.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 8: Thursday, June 25 -->
+        <div class="day-section">
+            <div class="day-header">
+                <div class="day-number">8</div>
+                <div class="day-info">
+                    <div class="day-date">Thursday, June 25, 2026</div>
+                    <div class="day-location">Departure Day</div>
+                </div>
+            </div>
+            <div class="day-content">
+                <div class="day-image">
+                    <!-- REPLACE WITH ACTUAL PHOTO: Washington D.C. Monuments -->
+                    <img src="images/day8-washington-dc-monuments.jpg" alt="Washington D.C. Monuments" loading="lazy">
+                </div>
+                <div class="day-text">
+                    <p>After breakfast, check out of your Washington, D.C. area hotel and transfer to the airport for your departure flight to <strong>San Antonio</strong>. Carry with you the memories of this transformative journey through America's history, where you witnessed the convergence of Juneteenth and America's 250th birthday celebration—a once-in-250-years experience.</p>
+                    <p><strong>Extend Your Stay:</strong> For those who wish to explore more of Washington, D.C., we offer the option to extend your stay. The nation's capital offers endless opportunities for further exploration—from additional Smithsonian museums to historic neighborhoods, cultural sites, and monuments. Contact us to customize your extended stay in Washington, D.C.</p>
+                    <ul class="activities-list">
+                        <li>Check out of Washington, D.C. Area Hotel</li>
+                        <li>Transfer to airport</li>
+                        <li>Depart for San Antonio</li>
+                        <li>Option to extend your stay in Washington, D.C. (contact us for details)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Sites Gallery -->
+    <section class="gallery">
+        <h2>Key Sites & Experiences</h2>
+        <div class="gallery-grid">
+            <div class="gallery-item">
+                <!-- REPLACE WITH ACTUAL PHOTO: Emancipation Oak at Hampton University -->
+                <img src="images/gallery-emancipation-oak-hampton-university.jpg" alt="Emancipation Oak at Hampton University" loading="lazy">
+                <div class="gallery-item-title">Emancipation Oak at Hampton University</div>
+            </div>
+            <div class="gallery-item">
+                <!-- REPLACE WITH ACTUAL PHOTO: Cornland School Museum -->
+                <img src="images/gallery-cornland-school-museum.jpg" alt="Cornland School Museum" loading="lazy">
+                <div class="gallery-item-title">Cornland School Museum</div>
+            </div>
+            <div class="gallery-item">
+                <!-- REPLACE WITH ACTUAL PHOTO: Norfolk Harborfest & Tall Ships -->
+                <img src="images/gallery-norfolk-harborfest-tall-ships.jpg" alt="Norfolk Harborfest & Tall Ships" loading="lazy">
+                <div class="gallery-item-title">Norfolk Harborfest & Tall Ships</div>
+            </div>
+            <div class="gallery-item">
+                <!-- REPLACE WITH ACTUAL PHOTO: Colonial Williamsburg -->
+                <img src="images/gallery-colonial-williamsburg.jpg" alt="Colonial Williamsburg" loading="lazy">
+                <div class="gallery-item-title">Colonial Williamsburg</div>
+            </div>
+            <div class="gallery-item">
+                <!-- REPLACE WITH ACTUAL PHOTO: Jamestown Settlement -->
+                <img src="images/gallery-jamestown-settlement.jpg" alt="Jamestown Settlement" loading="lazy">
+                <div class="gallery-item-title">Jamestown Settlement</div>
+            </div>
+            <div class="gallery-item">
+                <!-- REPLACE WITH ACTUAL PHOTO: Martin Luther King, Jr. Memorial -->
+                <img src="images/gallery-mlk-memorial.jpg" alt="Martin Luther King, Jr. Memorial" loading="lazy">
+                <div class="gallery-item-title">Martin Luther King, Jr. Memorial</div>
+            </div>
+            <div class="gallery-item">
+                <!-- REPLACE WITH ACTUAL PHOTO: Lincoln Memorial -->
+                <img src="images/gallery-lincoln-memorial.jpg" alt="Lincoln Memorial" loading="lazy">
+                <div class="gallery-item-title">Lincoln Memorial</div>
+            </div>
+            <div class="gallery-item">
+                <!-- REPLACE WITH ACTUAL PHOTO: Monuments by Moonlight Tour -->
+                <img src="images/gallery-monuments-by-moonlight.jpg" alt="Monuments by Moonlight Tour" loading="lazy">
+                <div class="gallery-item-title">Monuments by Moonlight Tour</div>
+            </div>
+            <div class="gallery-item">
+                <!-- REPLACE WITH ACTUAL PHOTO: National Museum of African American History and Culture -->
+                <img src="images/gallery-national-museum-african-american-history-culture.jpg" alt="National Museum of African American History and Culture" loading="lazy">
+                <div class="gallery-item-title">National Museum of African American History and Culture</div>
+            </div>
+            <div class="gallery-item">
+                <!-- REPLACE WITH ACTUAL PHOTO: Arlington National Cemetery -->
+                <img src="images/gallery-arlington-national-cemetery.jpg" alt="Arlington National Cemetery" loading="lazy">
+                <div class="gallery-item-title">Arlington National Cemetery</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What's Included Section -->
+    <section class="included">
+        <h2>What's Included</h2>
+        <div class="included-grid">
+            <div class="included-item">
+                <div class="included-item-icon">🎫</div>
+                <div class="included-item-text"><strong>All museum & attraction admissions</strong> - prepaid and confirmed</div>
+            </div>
+            <div class="included-item">
+                <div class="included-item-icon">⏰</div>
+                <div class="included-item-text"><strong>Timed entry reservations</strong> - no waiting in lines</div>
+            </div>
+            <div class="included-item">
+                <div class="included-item-icon">🚌</div>
+                <div class="included-item-text"><strong>Deluxe motor coach</strong> with professional driver throughout</div>
+            </div>
+            <div class="included-item">
+                <div class="included-item-icon">🏨</div>
+                <div class="included-item-text"><strong>All hotel accommodations</strong> - quality properties, guaranteed rooms</div>
+            </div>
+            <div class="included-item">
+                <div class="included-item-icon">🍳</div>
+                <div class="included-item-text"><strong>Daily breakfast</strong> at your hotel</div>
+            </div>
+            <div class="included-item">
+                <div class="included-item-icon">🍽️</div>
+                <div class="included-item-text"><strong>4 Dinners</strong> - Including a welcome and farewell dinner</div>
+            </div>
+            <div class="included-item">
+                <div class="included-item-icon">✈️</div>
+                <div class="included-item-text"><strong>Airport transfers</strong> - If you book your air flights through us</div>
+            </div>
+            <div class="included-item">
+                <div class="included-item-icon">👤</div>
+                <div class="included-item-text"><strong>Professional tour manager</strong> traveling with your group</div>
+            </div>
+            <div class="included-item">
+                <div class="included-item-icon">📚</div>
+                <div class="included-item-text"><strong>Expert local guides</strong> at key historic sites</div>
+            </div>
+            <div class="included-item">
+                <div class="included-item-icon">📞</div>
+                <div class="included-item-text"><strong>24/7 support</strong> - we're always just a phone call away</div>
+            </div>
+            <div class="included-item">
+                <div class="included-item-icon">🎯</div>
+                <div class="included-item-text"><strong>Complete trip coordination</strong> - one point of contact for everything</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact/CTA Section -->
+    <section class="contact">
+        <div class="contact-content">
+            <h2>Begin Your Journey</h2>
+            <p>Experience this once-in-250-years convergence of Juneteenth and America's 250th birthday celebration. Stand beneath the Emancipation Oak, witness the tall ships, and trace the complete American story from Jamestown to Washington, D.C.</p>
+            <div class="contact-info">
+                <p><strong>Great Falls Travel</strong></p>
+                <p>Contact us to reserve your place on this transformative journey</p>
+                <p>
+                    <a href="mailto:info@greatfallstravel.com">info@greatfallstravel.com</a><br>
+                    <a href="tel:+1-800-555-0123">(800) 555-0123</a>
+                </p>
+            </div>
+            <div class="brand">Great Falls Travel</div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Great Falls Travel. All rights reserved.</p>
+        <p>Anchored in Legacy - A Journey Through America's 250th & Juneteenth</p>
+    </footer>
+
+    <script>
+        // Smooth scroll reveal animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all day sections
+        document.querySelectorAll('.day-section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Lazy loading enhancement
+        if ('loading' in HTMLImageElement.prototype) {
+            const images = document.querySelectorAll('img[loading="lazy"]');
+            images.forEach(img => {
+                img.src = img.src;
+            });
+        } else {
+            // Fallback for browsers that don't support lazy loading
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js';
+            document.body.appendChild(script);
+        }
+    </script>
+</body>
+</html>

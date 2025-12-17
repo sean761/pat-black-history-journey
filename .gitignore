@@ -1,0 +1,16 @@
+# Ignore image files until they're added
+# Uncomment the line below if you want to ignore placeholder images
+# *.jpg
+# *.jpeg
+# *.png
+# *.webp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
