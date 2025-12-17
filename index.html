@@ -224,24 +224,38 @@
         .day-image {
             position: relative;
             width: 100%;
-            padding-bottom: 75%;
-            overflow: hidden;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
 
-        .day-image img {
+        .day-image:has(img:only-child) {
+            padding-bottom: 75%;
+        }
+
+        .day-image:has(img:only-child) img {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+
+        .day-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             transition: transform 0.5s ease;
         }
 
-        .day-image:hover img {
+        .day-image:has(img:only-child):hover img {
             transform: scale(1.05);
+        }
+
+        .day-image img:hover {
+            transform: scale(1.02);
         }
 
         .day-text {
@@ -588,7 +602,7 @@
             <div class="day-content">
                 <div class="day-image">
                     <!-- REPLACE WITH ACTUAL PHOTO: Emancipation Oak at Hampton University -->
-                    <img src="/images/emancipation-oak.jpg" alt="Emancipation Oak at Hampton University" loading="lazy">
+                    <img src="/images/day2-emancipation-oak-hampton-university.jpg" alt="Emancipation Oak at Hampton University" loading="lazy">
                 </div>
                 <div class="day-text">
                     <h3>Hampton University & The Emancipation Oak</h3>
@@ -652,6 +666,7 @@
                 <div class="day-image">
                     <!-- REPLACE WITH ACTUAL PHOTO: Colonial Williamsburg - Duke of Gloucester Street -->
                     <img src="/images/williamsburg-merchant-shop.jpg" alt="Colonial Williamsburg - Duke of Gloucester Street" loading="lazy">
+                    <img src="/images/williamsburg-governors-palace.jpg" alt="Colonial Williamsburg - Governor's Palace" loading="lazy">
                 </div>
                 <div class="day-text">
                     <h3>American Revolution Museum at Yorktown</h3>
@@ -806,7 +821,7 @@
         <div class="gallery-grid">
             <div class="gallery-item">
                 <!-- REPLACE WITH ACTUAL PHOTO: Emancipation Oak at Hampton University -->
-                <img src="/images/gallery-emancipation-oak-hampton-university.jpg" alt="Emancipation Oak at Hampton University" loading="lazy">
+                <img src="/images/emancipation-oak.jpg" alt="Emancipation Oak at Hampton University" loading="lazy">
                 <div class="gallery-item-title">Emancipation Oak at Hampton University</div>
             </div>
             <div class="gallery-item">
