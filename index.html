@@ -222,15 +222,17 @@
         }
 
         .day-image {
-            position: relative;
             width: 100%;
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
         }
 
+        /* Single image - maintain aspect ratio */
         .day-image:has(img:only-child) {
+            position: relative;
             padding-bottom: 75%;
+            overflow: hidden;
         }
 
         .day-image:has(img:only-child) img {
@@ -240,11 +242,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-        }
-
-        .day-image img {
-            width: 100%;
-            height: auto;
             border-radius: 8px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             transition: transform 0.5s ease;
@@ -254,7 +251,16 @@
             transform: scale(1.05);
         }
 
-        .day-image img:hover {
+        /* Multiple images - stack vertically */
+        .day-image:not(:has(img:only-child)) img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.5s ease;
+        }
+
+        .day-image:not(:has(img:only-child)) img:hover {
             transform: scale(1.02);
         }
 
