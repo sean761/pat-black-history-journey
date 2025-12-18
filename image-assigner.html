@@ -204,7 +204,7 @@
 
     <div class="actions">
         <button onclick="exportMapping()">Export Mapping</button>
-        <button onclick="applyChanges()" style="background: #2196F3;">Apply to index.html</button>
+        <button onclick="applyChanges()" style="background: #2196F3;">Apply to pat-sail250.html</button>
     </div>
 
     <script>
@@ -221,10 +221,10 @@
             gallery: []
         };
 
-        // Load current assignments from index.html
+        // Load current assignments from pat-sail250.html
         async function loadCurrentAssignments() {
             try {
-                const response = await fetch('index.html');
+                const response = await fetch('pat-sail250.html');
                 const html = await response.text();
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');

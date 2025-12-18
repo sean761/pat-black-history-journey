@@ -6,7 +6,7 @@ Simple Image Checker - Shows what images are used where
 import re
 from pathlib import Path
 
-html_file = Path('index.html')
+html_file = Path('pat-sail250.html')
 images_dir = Path('images')
 
 with open(html_file, 'r') as f:
